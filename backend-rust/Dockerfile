@@ -25,7 +25,7 @@ RUN cargo build --release --locked
 
 # ---- Final Stage ----
 # Use a small, secure base image for the final product
-FROM debian:buster-slim as runtime
+FROM debian:bookworm-slim as runtime
 
 # Install OpenSSL libraries needed at runtime
 RUN apt-get update && apt-get install -y libssl-dev ca-certificates && rm -rf /var/lib/apt/lists/*
