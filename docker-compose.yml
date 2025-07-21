@@ -30,11 +30,13 @@ services:
     environment:
       - DATABASE_URL=postgres://postgres:password@db/chatdb?sslmode=disable
     
-
   backend-rust:
-    build: ./backend-rust
+    build:
+      context: ./backend-rust
+      dockerfile: Dockerfile
     ports:
       - "8081:8081"
+    restart: unless-stopped
 
   frontend:
     build: ./frontend
