@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"time"
+	"os"
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -89,7 +90,10 @@ func (rw *statusCodeResponseWriter) WriteHeader(statusCode int) {
 
 func main() {
 	var err error
-	connStr := "postgres://postgres:password@localhost:5432/chatdb?sslmode=disable"
+	connStr := os.Getenv("DATABASE_URL")
+	if connStr == ""{
+		connStr = "postgres://postgres:password@db/chatdb?sslmode=disable"
+	}
 	db, err = sql.Open("postgres", connStr)
 	if err != nil {
 		log.Fatal("Error connecting to the database: ", err)
