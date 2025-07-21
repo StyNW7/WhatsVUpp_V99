@@ -1,4 +1,4 @@
-FROM rust:1.72 as builder
+FROM rust:latest as builder
 WORKDIR /app
 COPY . .
 RUN --mount=type=cache,target=/app/target \

@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      REGISTRY: your.registry.url # ganti dengan domain registry kamu (contoh: registry.example.com)
+      REGISTRY: docker.io/stynw7
       IMAGE_BACKEND: backend-go
       IMAGE_FRONTEND: frontend
       IMAGE_TAG: latest
@@ -58,5 +58,5 @@ jobs:
 
       - name: Deploy to Kubernetes
         run: |
-          kubectl apply -f k8s/backend-go/deployment.yaml
-          kubectl apply -f k8s/frontend/deployment.yaml
+          kubectl apply -f k8s/backend-go-deployment.yaml
+          kubectl apply -f k8s/frontenddeployment.yaml

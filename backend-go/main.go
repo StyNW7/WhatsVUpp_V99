@@ -11,6 +11,8 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -26,6 +28,64 @@ type User struct {
 }
 
 var db *sql.DB
+
+var (
+	httpRequests = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "http_requests_total",
+			Help: "Total number of HTTP requests.",
+		},
+		[]string{"method", "status"},
+	)
+
+	httpDuration = prometheus.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name:    "http_duration_seconds",
+			Help:    "Histogram of HTTP request durations in seconds.",
+			Buckets: prometheus.DefBuckets,
+		},
+		[]string{"method", "status"},
+	)
+)
+
+func init() {
+	prometheus.MustRegister(httpRequests)
+	prometheus.MustRegister(httpDuration)
+}
+
+func metricsHandler(w http.ResponseWriter, r *http.Request) {
+	// Expose metrics
+	promhttp.Handler().ServeHTTP(w, r)
+}
+
+func instrumentHandler(inner http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Start time to measure request duration
+		start := time.Now()
+
+		// Create a response writer to capture status code
+		rw := &statusCodeResponseWriter{ResponseWriter: w}
+		inner(rw, r)
+
+		// Track the request duration
+		duration := time.Since(start).Seconds()
+
+		// Increment the counters
+		httpRequests.WithLabelValues(r.Method, fmt.Sprint(rw.statusCode)).Inc()
+		httpDuration.WithLabelValues(r.Method, fmt.Sprint(rw.statusCode)).Observe(duration)
+	}
+}
+
+// Create a custom response writer to capture the status code
+type statusCodeResponseWriter struct {
+	http.ResponseWriter
+	statusCode int
+}
+
+func (rw *statusCodeResponseWriter) WriteHeader(statusCode int) {
+	rw.statusCode = statusCode
+	rw.ResponseWriter.WriteHeader(statusCode)
+}
 
 func main() {
 	var err error
@@ -53,10 +113,11 @@ func main() {
 		log.Fatal("Error creating table messages: ", err)
 	}
 	router := mux.NewRouter()
-	router.HandleFunc("/api/register", registerHandler).Methods("POST")
-	router.HandleFunc("/api/login", loginHandler).Methods("POST")
-	router.HandleFunc("/api/messages", getMessages).Methods("GET")
-	router.HandleFunc("/api/messages", postMessage).Methods("POST")
+	router.HandleFunc("/api/register", instrumentHandler(registerHandler)).Methods("POST")
+	router.HandleFunc("/api/login", instrumentHandler(loginHandler)).Methods("POST")
+	router.HandleFunc("/api/messages", instrumentHandler(getMessages)).Methods("GET")
+	router.HandleFunc("/api/messages", instrumentHandler(postMessage)).Methods("POST")
+	router.HandleFunc("/metrics", metricsHandler).Methods("GET")
 
 	corsHandler := handlers.CORS(
 		handlers.AllowedOrigins([]string{"*"}),
@@ -153,7 +214,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 	tokenString, err := GenerateJWT(user.Username)
 	if err != nil {
-		http.Error(w, "Error generating toke.", http.StatusInternalServerError)
+		http.Error(w, "Error generating token.", http.StatusInternalServerError)
 		return
 	}
 
