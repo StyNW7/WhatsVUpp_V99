@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-go
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend-go
+  template:
+    metadata:
+      labels:
+        app: backend-go
+    spec:
+      containers:
+      - name: backend-go
+        image: StyNW7/backend-go
+        ports:
+        - containerPort: 8080
