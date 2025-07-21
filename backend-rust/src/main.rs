@@ -38,7 +38,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(Cors::permissive())  
             .service(encrypt)
     })
-    .bind(("0.0.0.0", 8000))?
+    .bind(("0.0.0.0",8081))?
     .run()
     .await
 }
