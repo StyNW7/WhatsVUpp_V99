@@ -31,11 +31,20 @@ services:
       - DATABASE_URL=postgres://postgres:password@db/chatdb?sslmode=disable
     
   backend-rust:
-    build:
-      context: ./backend-rust
-      dockerfile: Dockerfile
+    image: rust:1.79
+    container_name: backend-rust-dev
+    working_dir: /app
+    volumes:
+      - ./backend-rust:/app   # Mount your local source into the container
+      - cargo-cache:/usr/local/cargo/registry   # Cache cargo registry for faster builds
+      - cargo-target:/app/target  # Cache target dir to speed up incremental builds
     ports:
       - "8081:8081"
+    command: >
+      bash -c "cargo build --release && ./target/release/backend-rust"
+    # Optional: to rebuild on changes you could use 'cargo watch' but you need to add it
+    # command: >
+    #   bash -c 'cargo install cargo-watch && cargo watch -x run'
     restart: unless-stopped
 
   frontend:
@@ -62,6 +71,8 @@ services:
 
 volumes:
   db-data:
+  cargo-cache:
+  cargo-target:
 
 networks:
   backend:
