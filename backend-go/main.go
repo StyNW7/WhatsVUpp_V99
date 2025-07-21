@@ -25,7 +25,6 @@ type User struct {
 	Password string `json:"password"`
 }
 
-
 var db *sql.DB
 
 func main() {
@@ -58,16 +57,16 @@ func main() {
 	router.HandleFunc("/api/login", loginHandler).Methods("POST")
 	router.HandleFunc("/api/messages", getMessages).Methods("GET")
 	router.HandleFunc("/api/messages", postMessage).Methods("POST")
-	
+
 	corsHandler := handlers.CORS(
-		handlers.AllowedOrigins([]string{"*"}), 
-		handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}), 
-		handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}), 
+		handlers.AllowedOrigins([]string{"*"}),
+		handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}),
+		handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
 		handlers.AllowCredentials(),
 	)
 
 	fmt.Println("Server running on port 8080")
-	log.Fatal(http.ListenAndServe(":8080", corsHandler(router))) 
+	log.Fatal(http.ListenAndServe(":8080", corsHandler(router)))
 }
 func getMessages(w http.ResponseWriter, r *http.Request) {
 	rows, err := db.Query("SELECT id, sender, content, timestamp FROM messages ORDER BY timestamp ASC")
@@ -90,7 +89,6 @@ func getMessages(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(messages)
 }
-
 
 func postMessage(w http.ResponseWriter, r *http.Request) {
 	var msg Message
@@ -153,7 +151,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tokenString,err := GenerateJWT(user.Username)
+	tokenString, err := GenerateJWT(user.Username)
 	if err != nil {
 		http.Error(w, "Error generating toke.", http.StatusInternalServerError)
 		return
