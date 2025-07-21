@@ -1,0 +1,12 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: backend-go-monitor
+spec:
+  selector:
+    matchLabels:
+      app: backend-go
+  endpoints:
+  - port: 8080
+    path: /metrics
+    interval: 10s  # How often Prometheus will scrape the metric
