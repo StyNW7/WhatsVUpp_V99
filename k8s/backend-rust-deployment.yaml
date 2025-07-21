@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-rust
+  labels:
+    app: backend-rust
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend-rust
+  template:
+    metadata:
+      labels:
+        app: backend-rust
+    spec:
+      containers:
+      - name: backend-rust
+        image: stynw7/backend-rust:latest
+        ports:
+        - containerPort: 8081
