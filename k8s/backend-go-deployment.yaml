@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
       - name: backend-go
-        image: localhost:5000/whatsvupp-backend-go:latest
+        image: 192.168.88.1:5000/whatsvupp-backend-go:latest
         ports:
         - containerPort: 8080

@@ -17,7 +17,7 @@ env:
   # IMAGE_NAME: your-app-name
   
   # For Self-hosted registry
-  REGISTRY: localhost:5000
+  REGISTRY: 192.168.88.1:5000
   IMAGE_NAME_FRONTEND: whatsvupp-frontend
   IMAGE_NAME_GO: whatsvupp-backend-go
   IMAGE_NAME_RUST: whatsvupp-backend-rust
@@ -90,10 +90,20 @@ jobs:
     #     cache-from: type=gha
     #     cache-to: type=gha,mode=max
         
-    - name: Deploy to staging/production
-      if: github.ref == 'refs/heads/main'
-      run: |
-        echo "Deploying to production..."
-        # Add your deployment commands here
-        # docker pull ${{ env.REGISTRY }}/${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
-        # docker-compose up -d
+    # - name: Deploy to staging/production
+    #   if: github.ref == 'refs/heads/main'
+    #   run: |
+    #     echo "Deploying to production..."
+    #     # Add your deployment commands here
+    #     # docker pull ${{ env.REGISTRY }}/${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
+    #     # docker-compose up -d
+    - name: Deploy to Kubernetes
+    uses: actions-hub/kuberctl@master
+    env:
+      KUBE_CONFIG: ${{ secrets.KUBE_CONFIG_DATA }}
+    with:
+      args: |
+        set image deployment/frontend frontend=REGISTRY:5000/${{ env.IMAGE_NAME_FRONTEND }}:latest
+        set image deployment/backend-go backend-go=REGISTRY:5000/${{ env.IMAGE_NAME_GO }}:latest
+        set image deployment/backend-rust backend-rust=REGISTRY:5000/${{ env.IMAGE_NAME_RUST }}:latest
+
