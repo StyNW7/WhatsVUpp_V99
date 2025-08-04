@@ -12,11 +12,11 @@ on:
 
 env:
 
-  # For Docker Hub (Option 1)
+  # For Docker Hub
   # REGISTRY: docker.io
   # IMAGE_NAME: your-app-name
   
-  # For Self-hosted registry (Option 2) - uncomment and modify
+  # For Self-hosted registry
   REGISTRY: localhost:5000
   IMAGE_NAME_FRONTEND: whatsvupp-frontend
   IMAGE_NAME_GO: whatsvupp-backend-go
