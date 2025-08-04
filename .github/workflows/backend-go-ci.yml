@@ -29,6 +29,16 @@ jobs:
           registry: ${{ secrets.DOCKER_REGISTRY_URL }}
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.24'
+
+      - name: Run Go Unit Tests
+        run: |
+          cd backend-go
+          go test -v ./...
       
       - name: Build and Push Docker Images
         uses: docker/build-push-action@v5
@@ -42,4 +52,7 @@ jobs:
         env:
           KUBE_CONFIG: ${{ secrets.KUBE_CONFIG_DATA }}
         with:
-          args: set image deployment/backend-go-deployment backend-go-container=${{ secrets.DOCKER_REGISTRY_URL }}/backend-go:${{ github.sha }}
+          args: |
+              set image deployment/frontend frontend=YOUR_PUBLIC_IP:5000/${{ env.IMAGE_NAME_FRONTEND }}:latest
+              set image deployment/backend-go backend-go=YOUR_PUBLIC_IP:5000/${{ env.IMAGE_NAME_GO }}:latest
+              set image deployment/backend-rust backend-rust=YOUR_PUBLIC_IP:5000/${{ env.IMAGE_NAME_RUST }}:latest
