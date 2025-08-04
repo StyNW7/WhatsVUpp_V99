@@ -20,7 +20,7 @@ const RegisterPage: React.FC = () => {
 
   const encryptPassword = async (password: string): Promise<string | null> => {
     try {
-      const response = await fetch("http://localhost:8080/encrypt", {
+      const response = await fetch("http://localhost:8081/encrypt", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password }),
