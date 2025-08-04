@@ -1,6 +1,6 @@
 #!/bin/bash
 
-REGISTRY="${REGISTRY:localhost:5000}"
+REGISTRY="${REGISTRY:-localhost:5000}"
 
 echo "Logging into private registry..."
 echo "$REGISTRY_PASSWORD" | docker login "$REGISTRY" -u "$REGISTRY_USERNAME" --password-stdin
