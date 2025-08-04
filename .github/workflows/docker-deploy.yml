@@ -63,31 +63,32 @@ jobs:
     - name: Build and push backend-rust image 
       uses: docker/build-push-action@v5
       with: 
-        context: ./frontend
+        context: ./backend-rust
         push: true
-        tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_RUST }}
+        tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_RUST }}:latest
         
-    - name: Extract metadata
-      id: meta
-      uses: docker/metadata-action@v5
-      with:
-        images: ${{ env.REGISTRY }}/${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}
-        tags: |
-          type=ref,event=branch
-          type=ref,event=pr
-          type=sha,prefix={{branch}}-
-          type=raw,value=latest,enable={{is_default_branch}}
+    # Redundant detect
+    # - name: Extract metadata
+    #   id: meta
+    #   uses: docker/metadata-action@v5
+    #   with:
+    #     images: ${{ env.REGISTRY }}/${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}
+    #     tags: |
+    #       type=ref,event=branch
+    #       type=ref,event=pr
+    #       type=sha,prefix={{branch}}-
+    #       type=raw,value=latest,enable={{is_default_branch}}
           
-    - name: Build and push Docker image
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        platforms: linux/amd64,linux/arm64
-        push: true
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
+    # - name: Build and push Docker image
+    #   uses: docker/build-push-action@v5
+    #   with:
+    #     context: .
+    #     platforms: linux/amd64,linux/arm64
+    #     push: true
+    #     tags: ${{ steps.meta.outputs.tags }}
+    #     labels: ${{ steps.meta.outputs.labels }}
+    #     cache-from: type=gha
+    #     cache-to: type=gha,mode=max
         
     - name: Deploy to staging/production
       if: github.ref == 'refs/heads/main'
