@@ -1,0 +1,14 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: backend-go-monitor
+  labels:
+    release: prometheus # Add this label
+spec:
+  selector:
+    matchLabels:
+      app: backend-go
+  endpoints:
+  - port: "8080" # The name of the port in your service
+    path: /metrics
+    interval: 15s

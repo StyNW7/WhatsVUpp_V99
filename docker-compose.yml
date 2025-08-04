@@ -50,7 +50,7 @@ services:
   frontend:
     build: ./frontend
     ports:
-      - "3000:80"
+      - "5173:80"
   
   db:
     image: postgres:15

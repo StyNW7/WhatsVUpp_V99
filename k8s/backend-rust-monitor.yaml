@@ -1,0 +1,14 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: backend-rust-monitor
+  labels:
+    release: prometheus # This label is crucial for the Helm chart to discover it
+spec:
+  selector:
+    matchLabels:
+      app: backend-rust
+  endpoints:
+  - port: "8081" # The name of the port in your service
+    path: /metrics
+    interval: 15s

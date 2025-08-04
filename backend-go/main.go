@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"time"
 	"os"
+	"time"
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -36,7 +36,7 @@ var (
 			Name: "http_requests_total",
 			Help: "Total number of HTTP requests.",
 		},
-		[]string{"method", "status"},
+		[]string{"method", "status", "endpoint"},
 	)
 
 	httpDuration = prometheus.NewHistogramVec(
@@ -45,7 +45,7 @@ var (
 			Help:    "Histogram of HTTP request durations in seconds.",
 			Buckets: prometheus.DefBuckets,
 		},
-		[]string{"method", "status"},
+		[]string{"method", "status", "endpoint"},
 	)
 )
 
@@ -72,8 +72,9 @@ func instrumentHandler(inner http.HandlerFunc) http.HandlerFunc {
 		duration := time.Since(start).Seconds()
 
 		// Increment the counters
-		httpRequests.WithLabelValues(r.Method, fmt.Sprint(rw.statusCode)).Inc()
-		httpDuration.WithLabelValues(r.Method, fmt.Sprint(rw.statusCode)).Observe(duration)
+		endpoint := r.URL.Path // extract the endpoint path
+		httpRequests.WithLabelValues(r.Method, fmt.Sprint(rw.statusCode), endpoint).Inc()
+		httpDuration.WithLabelValues(r.Method, fmt.Sprint(rw.statusCode), endpoint).Observe(duration)
 	}
 }
 
@@ -91,7 +92,7 @@ func (rw *statusCodeResponseWriter) WriteHeader(statusCode int) {
 func main() {
 	var err error
 	connStr := os.Getenv("DATABASE_URL")
-	if connStr == ""{
+	if connStr == "" {
 		connStr = "postgres://postgres:password@db/chatdb?sslmode=disable"
 	}
 	db, err = sql.Open("postgres", connStr)
