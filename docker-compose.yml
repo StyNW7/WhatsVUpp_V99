@@ -10,18 +10,15 @@ services:
       REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
       REGISTRY_AUTH_HTPASSWD_PATH: /auth/htpasswd
       REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY: /var/lib/registry
-      # REGISTRY_HTTP_TLS_CERTIFICATE: /certs/domain.crt
-      # REGISTRY_HTTP_TLS_KEY: /certs/domain.key
     volumes:
       - ./auth:/auth
       - ./data:/var/lib/registry
-      # - ./certs:/certs
     restart: unless-stopped
     networks:
       - backend
 
   backend-go:
-    build: ./backend-go
+    image: localhost:5000/backend-go:latest
     depends_on:
       db:
         condition: service_healthy
@@ -29,29 +26,34 @@ services:
       - "8080:8080"
     environment:
       - DATABASE_URL=postgres://postgres:password@db/chatdb?sslmode=disable
-    
+    restart: unless-stopped
+    networks:
+      - backend
+
   backend-rust:
     image: rust:1.79
     container_name: backend-rust-dev
     working_dir: /app
     volumes:
-      - ./backend-rust:/app   # Mount your local source into the container
-      - cargo-cache:/usr/local/cargo/registry   # Cache cargo registry for faster builds
-      - cargo-target:/app/target  # Cache target dir to speed up incremental builds
+      - ./backend-rust:/app
+      - cargo-cache:/usr/local/cargo/registry
+      - cargo-target:/app/target
     ports:
       - "8081:8081"
     command: >
       bash -c "cargo build --release && ./target/release/backend-rust"
-    # Optional: to rebuild on changes you could use 'cargo watch' but you need to add it
-    # command: >
-    #   bash -c 'cargo install cargo-watch && cargo watch -x run'
     restart: unless-stopped
+    networks:
+      - backend
 
   frontend:
-    build: ./frontend
+    image: localhost:5000/frontend:latest
     ports:
       - "5173:80"
-  
+    restart: unless-stopped
+    networks:
+      - backend
+
   db:
     image: postgres:15
     restart: always
@@ -68,6 +70,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - backend
 
 volumes:
   db-data:
