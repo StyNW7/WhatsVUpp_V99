@@ -149,12 +149,6 @@ Pipeline performs:
 
 ---
 
-## 📄 License
-
-This project is licensed under the MIT License. See [LICENSE](LICENSE) for more information.
-
----
-
 ## 🙋‍♂️ Contributing
 
 Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
@@ -163,4 +157,4 @@ Pull requests are welcome! For major changes, please open an issue first to disc
 
 ## 📬 Contact
 
-For questions or support, please open an issue or email `your.email@example.com`.
+Developed by: NW, NV, AT, NP, VW, KF For questions or collaboration, please contact via email or open an issue.
