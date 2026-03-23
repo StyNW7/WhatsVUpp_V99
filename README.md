@@ -1,5 +1,3 @@
-# Amen lulus TPA Network 25-1
-
 # 🚀 Multi-Service Application with Go, Rust, and Kubernetes
 
 This is a full-stack microservices project composed of backend services written in Go and Rust, a frontend built with Nginx, and orchestrated using Docker Compose and Kubernetes. The project supports local development with Docker and CI/CD integration for deployment.
